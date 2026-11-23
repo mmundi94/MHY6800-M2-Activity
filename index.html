@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice Activity: The Approach Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f4ff; --ink:#221a3d; --muted:#5e5878; --line:rgba(34,26,61,.12);
+  --violet:#582fc1; --violetL:#e9e1ff;
+  --blue:#0b5394; --blueL:#dceafa;
+  --pink:#ff5c8a; --pinkL:#ffe1ea;
+  --aqua:#12b5a3; --aquaL:#d3f6f1;
+  --apricot:#ff9f2e; --apricotL:#ffebd1;
+  --good:#0e9e8c; --bad:#e8436f;
+  --shadow:0 2px 0 rgba(34,26,61,.06),0 22px 44px -22px rgba(88,47,193,.45);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden;background:var(--bg)}
+body{font-family:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;line-height:1.5;position:relative;overflow-x:hidden}
+.mesh{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+   radial-gradient(42% 38% at 8% 6%,rgba(255,92,138,.38),transparent 70%),
+   radial-gradient(40% 40% at 96% 10%,rgba(18,181,163,.34),transparent 70%),
+   radial-gradient(46% 42% at 88% 96%,rgba(88,47,193,.32),transparent 70%),
+   radial-gradient(36% 36% at 4% 92%,rgba(255,159,46,.36),transparent 70%);}
+.mesh::after{content:"";position:absolute;inset:0;opacity:.34;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25  0 0 0 0 .15  0 0 0 0 .45  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");}
+.dots{position:fixed;width:260px;height:260px;z-index:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(var(--violet) 1.6px,transparent 1.8px);background-size:14px 14px;
+  -webkit-mask-image:radial-gradient(circle,#000 30%,transparent 70%);mask-image:radial-gradient(circle,#000 30%,transparent 70%)}
+.dots.d1{top:-40px;right:8%} .dots.d2{bottom:-60px;left:4%;background-image:radial-gradient(var(--pink) 1.6px,transparent 1.8px)}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:22px 18px 64px}
+h1,h2,h3,.disp{font-family:"Syne","Manrope",sans-serif;letter-spacing:-.015em}
+button{font-family:inherit;cursor:pointer;color:var(--ink)}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--violet);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand b{display:block;font-family:"Syne",sans-serif;font-weight:800;font-size:17px;letter-spacing:.02em}
+.brand span{font-size:13px;color:var(--muted);font-weight:600}
+.hRight{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:8px 15px;font-weight:800;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:linear-gradient(120deg,var(--violet),var(--pink));box-shadow:0 8px 20px -10px rgba(88,47,193,.8)}
+.chip i{width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.35;transform:scale(.7)}}
+.ghost{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:rgba(255,255,255,.85);backdrop-filter:blur(6px);border-radius:999px;padding:8px 16px;font-weight:800;font-size:14px;transition:transform .2s,box-shadow .2s}
+.ghost:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.ghost svg{width:22px;height:22px}
+
+/* stepper */
+.stepper{position:relative;display:grid;grid-template-columns:repeat(4,1fr);margin:26px 0 20px;padding:0 10px}
+.track{position:absolute;left:12.5%;right:12.5%;top:27px;height:6px;border-radius:6px;background:rgba(34,26,61,.1);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--pink),var(--apricot));transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.node{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;position:relative}
+.node .orb{width:60px;height:60px;border-radius:50%;background:#fff;border:1.5px solid var(--line);display:grid;place-items:center;transition:all .4s;box-shadow:0 6px 16px -10px rgba(34,26,61,.5)}
+.node .orb svg{width:34px;height:34px;filter:grayscale(1) opacity(.55);transition:filter .4s}
+.node b{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.node span{font-family:"Syne",sans-serif;font-weight:700;font-size:14.5px;line-height:1.15}
+.node.on .orb{background:linear-gradient(135deg,#fff,var(--violetL));border-color:var(--violet);box-shadow:0 0 0 6px rgba(88,47,193,.14),0 12px 26px -12px rgba(88,47,193,.9);transform:scale(1.08)}
+.node.on .orb svg,.node.done .orb svg{filter:none}
+.node.done .orb{background:var(--aquaL);border-color:var(--aqua)}
+.node.done .orb::after{content:"";position:absolute;margin:-38px 0 0 42px;width:22px;height:22px;border-radius:50%;background:var(--aqua) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5 10.5l3 3 7-7' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/14px no-repeat;border:2px solid #fff}
+
+/* screens */
+.screen{display:none}
+.screen.show{display:block;animation:enter .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes enter{from{opacity:0;transform:translateY(26px) scale(.985)}to{opacity:1;transform:none}}
+.card{background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1.5px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:28px;position:relative;overflow:hidden}
+.kicker{font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--violet)}
+.lead{font-size:16.5px;color:#3b3457;max-width:720px}
+.go{border:0;border-radius:999px;padding:13px 24px;font-weight:800;font-size:16px;color:#fff;background:linear-gradient(120deg,var(--violet),#8a3fd1 55%,var(--pink));display:inline-flex;align-items:center;gap:10px;box-shadow:0 14px 26px -14px rgba(88,47,193,.95);transition:transform .2s,box-shadow .2s}
+.go:hover{transform:translateY(-2px);box-shadow:0 18px 30px -14px rgba(88,47,193,1)}
+.go[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.go svg{width:20px;height:20px}
+.go.soft{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:var(--shadow)}
+
+/* intro */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center}
+.hero h1{font-size:50px;line-height:1;margin:10px 0 16px}
+.hero h1 .grad{background:linear-gradient(100deg,var(--violet),var(--pink) 60%,var(--apricot));-webkit-background-clip:text;background-clip:text;color:transparent}
+.fic{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:999px;background:var(--apricotL);color:#8a4b00;vertical-align:middle}
+.labs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+.labTile{border-radius:20px;padding:14px;background:linear-gradient(160deg,#fff,var(--violetL));border:1.5px solid var(--line)}
+.labTile:nth-child(2){background:linear-gradient(160deg,#fff,var(--aquaL))}
+.labTile:nth-child(3){background:linear-gradient(160deg,#fff,var(--pinkL))}
+.labTile svg{width:38px;height:38px}
+.labTile b{display:block;font-family:"Syne",sans-serif;font-size:16px;margin-top:4px}
+.labTile span{font-size:13.5px;color:var(--muted)}
+.heroArt svg{width:100%;max-width:380px;display:block;margin:auto}
+.float{animation:float 4s ease-in-out infinite}
+.float2{animation:float 5s ease-in-out infinite -2s}
+@keyframes float{50%{transform:translateY(-10px)}}
+.bub{animation:bub 3.2s ease-in infinite}
+@keyframes bub{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-70px);opacity:0}}
+
+/* lab layout */
+.labHead{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px}
+.labHead .badge{width:66px;height:66px;flex:none;border-radius:22px;display:grid;place-items:center;background:linear-gradient(135deg,var(--violetL),#fff);border:1.5px solid var(--line)}
+.labHead .badge svg{width:42px;height:42px}
+.labHead h2{font-size:29px;line-height:1.1;margin:4px 0 6px}
+.count{margin-left:auto;font-weight:800;font-size:13.5px;padding:7px 14px;border-radius:999px;background:var(--violetL);color:var(--violet);white-space:nowrap}
+.split{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;align-items:start}
+.side{border-radius:24px;padding:18px;background:linear-gradient(170deg,#fff,#f3efff);border:1.5px solid var(--line);position:sticky;top:12px}
+.side h3{font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+
+/* question */
+.q{border-radius:22px;padding:20px 22px;background:linear-gradient(135deg,#fff 30%,var(--violetL));border:1.5px solid var(--line);font-size:18.5px;font-weight:700;line-height:1.4;animation:qin .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes qin{from{opacity:0;transform:translateX(-24px) rotate(-1deg)}to{opacity:1;transform:none}}
+.q small{display:block;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--violet);margin-bottom:6px}
+.q .from{display:inline-block;font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;margin-bottom:8px}
+.opts{display:grid;gap:10px;margin-top:14px}
+.g2{grid-template-columns:1fr 1fr} .g3{grid-template-columns:repeat(3,1fr)} .g1{grid-template-columns:1fr}
+.opt{border:1.5px solid var(--line);border-radius:18px;background:#fff;padding:12px 14px;text-align:left;font-weight:700;font-size:15px;display:flex;align-items:center;gap:12px;transition:transform .18s,box-shadow .18s,border-color .18s,background .25s;position:relative}
+.opt .ib{width:44px;height:44px;flex:none;border-radius:14px;display:grid;place-items:center;background:var(--violetL)}
+.opt .ib svg{width:30px;height:30px}
+.opt .tx small{display:block;font-weight:600;font-size:12.5px;color:var(--muted);margin-top:1px}
+.opt.tall{flex-direction:column;text-align:center;padding:18px 12px}
+.opt.tall .ib{width:62px;height:62px;border-radius:20px}
+.opt.tall .ib svg{width:42px;height:42px}
+.opt.long{font-weight:600;font-size:15px;line-height:1.45}
+.opt:hover:not([disabled]){transform:translateY(-3px);box-shadow:var(--shadow);border-color:rgba(88,47,193,.45)}
+.opt[disabled]{cursor:default;color:var(--ink)}
+.opt.right{background:var(--aquaL);border-color:var(--good);animation:yes .5s}
+.opt.wrong{background:var(--pinkL);border-color:var(--bad);animation:no .45s}
+.opt.dim{opacity:.42}
+.opt.right::after,.opt.wrong::after{content:"";position:absolute;top:-9px;right:-9px;width:26px;height:26px;border-radius:50%;border:2.5px solid #fff;background-position:center;background-repeat:no-repeat;background-size:14px}
+.opt.right::after{background-color:var(--good);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5 10.5l3 3 7-7' fill='none' stroke='white' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/></svg>")}
+.opt.wrong::after{background-color:var(--bad);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M6 6l8 8M14 6l-8 8' stroke='white' stroke-width='2.8' stroke-linecap='round'/></svg>")}
+@keyframes yes{40%{transform:scale(1.04)}}
+@keyframes no{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.fb{margin-top:14px;border-radius:18px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;font-size:15px;animation:enter .4s}
+.fb.ok{background:var(--aquaL)} .fb.no{background:var(--pinkL)}
+.fb svg{width:30px;height:30px;flex:none}
+.fb b{font-family:"Syne",sans-serif}
+.nav{display:flex;justify-content:flex-end;margin-top:14px}
+.sub2{margin-top:18px;padding-top:16px;border-top:1.5px dashed var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chips span{font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px;background:#fff;border:1.5px solid var(--line)}
+
+/* manifesto panel */
+.val{display:flex;align-items:center;gap:10px;border-radius:16px;padding:10px 12px;background:#fff;border:1.5px solid var(--line);margin-bottom:8px;transition:all .5s}
+.val svg{width:34px;height:34px;flex:none}
+.val p{font-size:13.5px;line-height:1.3}
+.val p b{font-weight:800}
+.val p span{color:var(--muted)}
+.val.lit{background:linear-gradient(120deg,var(--aquaL),#fff);border-color:var(--aqua);transform:translateX(4px)}
+.val.lit.miss{background:linear-gradient(120deg,var(--pinkL),#fff);border-color:var(--bad)}
+.lanes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lane{border-radius:18px;min-height:220px;padding:10px;border:2px dashed rgba(34,26,61,.18)}
+.lane.def{background:linear-gradient(180deg,var(--blueL),#fff)} .lane.emp{background:linear-gradient(180deg,var(--aquaL),#fff)}
+.lane h4{font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.lane h4 svg{width:22px;height:22px}
+.chipCard{font-size:12.5px;line-height:1.3;border-radius:12px;padding:8px 10px;background:#fff;border:1.5px solid var(--line);margin-top:6px;animation:drop .6s cubic-bezier(.2,1.4,.4,1)}
+.chipCard.miss{border-color:var(--bad)}
+@keyframes drop{from{opacity:0;transform:translateY(-40px) rotate(-6deg)}to{opacity:1;transform:none}}
+
+/* gauges */
+.gauge{border-radius:20px;background:#fff;border:1.5px solid var(--line);padding:10px 12px 12px;margin-bottom:10px}
+.gauge .gt{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.gauge .gt i{font-style:normal;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px}
+.gauge svg{width:100%;height:auto;display:block}
+.needle{transition:transform 1s cubic-bezier(.3,1.5,.5,1);transform-origin:100px 100px}
+.gauge .ev{font-size:12px;color:var(--muted);text-align:center;margin-top:-2px}
+
+/* draw the line */
+.board{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.col{border-radius:20px;padding:12px;min-height:150px;border:2px dashed rgba(34,26,61,.18)}
+.col.plan{background:linear-gradient(180deg,var(--blueL),#fff)} .col.cyc{background:linear-gradient(180deg,var(--aquaL),#fff)}
+.col h4{display:flex;align-items:center;gap:8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+.col h4 svg{width:26px;height:26px}
+.mile{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-weight:800;font-size:13.5px;color:var(--violet);opacity:.25;transition:opacity .6s}
+.mile.on{opacity:1}
+.mile svg{width:26px;height:26px}
+
+/* project tags */
+.pA{background:var(--aquaL);color:#06685d} .pB{background:var(--blueL);color:var(--blue)} .pC{background:var(--pinkL);color:#a3204a}
+
+/* log */
+.log{margin-top:18px;border-radius:20px;padding:16px 18px;background:#1f1838;color:#efeaff;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;font-size:14.5px;line-height:1.55;display:none;position:relative}
+.log.show{display:block;animation:enter .5s}
+.log .lbl{font-family:"Manrope",sans-serif;font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#b9a6ff;margin-bottom:6px}
+.caret{display:inline-block;width:9px;height:17px;background:#ff9f2e;vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* results */
+.beakers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:24px 0 8px}
+.bk{text-align:center}
+.glass{position:relative;margin:0 auto;width:110px;height:170px;border:3px solid var(--ink);border-top:0;border-radius:0 0 34px 34px;overflow:hidden;background:rgba(255,255,255,.7)}
+.glass::before{content:"";position:absolute;top:0;left:-8px;right:-8px;height:3px;background:var(--ink)}
+.liquid{position:absolute;left:0;right:0;bottom:0;height:0;transition:height 1.6s cubic-bezier(.2,.8,.2,1)}
+.liquid::before{content:"";position:absolute;left:-50%;width:200%;top:-10px;height:20px;background:inherit;border-radius:45%;animation:wave 3s linear infinite}
+@keyframes wave{to{transform:translateX(25%)}}
+.ticks{position:absolute;right:8px;top:20px;bottom:20px;width:12px;background:repeating-linear-gradient(180deg,var(--ink) 0 2px,transparent 2px 26px);opacity:.25}
+.bk b{display:block;font-family:"Syne",sans-serif;font-size:22px;margin-top:10px}
+.bk span{font-size:13.5px;color:var(--muted);font-weight:600}
+.big{font-family:"Syne",sans-serif;font-weight:800;font-size:56px;line-height:1;background:linear-gradient(100deg,var(--violet),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.learned{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.learned div{border-radius:18px;padding:14px;background:#fff;border:1.5px solid var(--line);font-size:14.5px}
+.learned b{font-family:"Syne",sans-serif;display:block;margin-bottom:2px}
+.rise{position:absolute;bottom:0;width:12px;height:12px;border-radius:50%;pointer-events:none;animation:up 2.4s ease-in forwards}
+@keyframes up{to{transform:translate(var(--dx),-420px) scale(.4);opacity:0}}
+
+/* modal */
+.veil{position:fixed;inset:0;background:rgba(34,26,61,.45);backdrop-filter:blur(3px);z-index:30;display:none;align-items:center;justify-content:center;padding:16px}
+.veil.show{display:flex;animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.modal{background:#fff;border-radius:28px;max-width:640px;width:100%;max-height:88vh;overflow:auto;padding:22px 24px;box-shadow:0 30px 80px -20px rgba(34,26,61,.6);animation:enter .35s}
+.mHead{display:flex;align-items:center;gap:12px}
+.mHead h2{font-size:24px}
+.x{margin-left:auto;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:20px;font-weight:800}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 10px}
+.tab{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px}
+.tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pane ul{padding-left:18px} .pane li{margin:7px 0;font-size:14.5px}
+.pane p{font-size:14.5px;margin:6px 0}
+
+@media (max-width:880px){
+ .hero{grid-template-columns:1fr} .hero h1{font-size:38px} .heroArt{max-width:300px;margin:auto}
+ .split{grid-template-columns:1fr} .side{position:static}
+ .labs,.learned{grid-template-columns:1fr}
+ .g3{grid-template-columns:1fr}
+ .count{display:none}
+ #s2 .side{order:-1;padding:12px} #gauges{display:grid;grid-template-columns:1fr 1fr;gap:8px} #gauges p{grid-column:1/-1} #gauges .gauge{margin:0;padding:8px}
+}
+@media (max-width:560px){
+ .card{padding:18px;border-radius:22px}
+ .node span{display:none} .node b{font-size:10px} .node .orb{width:48px;height:48px} .node .orb svg{width:28px;height:28px} .track{top:22px}
+ .node.done .orb::after{margin:-30px 0 0 34px}
+ .g2,.board,.lanes{grid-template-columns:1fr}
+ .beakers{gap:8px} .glass{width:84px;height:140px}
+ .labHead h2{font-size:23px} .labHead .badge{width:52px;height:52px} .labHead .badge svg{width:34px;height:34px}
+ .q{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+ <defs>
+  <linearGradient id="gV" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7b55e6"/><stop offset="1" stop-color="#ff5c8a"/></linearGradient>
+  <linearGradient id="gB" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b5394"/><stop offset="1" stop-color="#12b5a3"/></linearGradient>
+  <linearGradient id="gO" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc061"/><stop offset="1" stop-color="#ff5c8a"/></linearGradient>
+  <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3fe0cc"/><stop offset="1" stop-color="#0e9e8c"/></linearGradient>
+  <linearGradient id="gS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9e1ff"/></linearGradient>
+ </defs>
+</svg>
+<div class="mesh"></div><div class="dots d1"></div><div class="dots d2"></div>
+<div class="wrap">
+ <header class="top">
+  <div class="brand"><b>Nexford University</b><span>MHY6800 Product Management with Agile and Lean · Module 2</span></div>
+  <div class="hRight">
+   <span class="chip"><i></i>Practice Activity</span>
+   <button class="ghost" id="openBrief" type="button" aria-haspopup="dialog"><span data-ic="folder"></span>Nomli brief</button>
+  </div>
+ </header>
+
+ <nav class="stepper" aria-label="Progress">
+  <div class="track"><i id="track"></i></div>
+  <div class="node" data-n="1"><div class="orb" data-ic="scroll"></div><b>Lab 1</b><span>Mindset check</span></div>
+  <div class="node" data-n="2"><div class="orb" data-ic="gauge"></div><b>Lab 2</b><span>Criteria console</span></div>
+  <div class="node" data-n="3"><div class="orb" data-ic="layers"></div><b>Lab 3</b><span>Best-fit studio</span></div>
+  <div class="node" data-n="4"><div class="orb" data-ic="flask"></div><b>Results</b><span>Your readings</span></div>
+ </nav>
+
+ <main aria-live="polite">
+  <!-- INTRO -->
+  <section class="screen show" id="s0">
+   <div class="card">
+    <div class="hero">
+     <div>
+      <div class="kicker">Module 2 · Practice Activity</div>
+      <h1>The Approach Lab: <span class="grad">one team, three projects</span></h1>
+      <p class="lead">You're advising Nomli <span class="fic">fictional</span>, an app that lets parents pay school fees by phone. The CTO is starting three projects and asks one question: "Should we run them all the same way?" Test each project in the lab, then recommend the approach that fits.</p>
+      <div class="labs">
+       <div class="labTile"><span data-ic="scroll"></span><b>Lab 1: Mindset check</b><span>Agile values, and defined or empirical work</span></div>
+       <div class="labTile"><span data-ic="gauge"></span><b>Lab 2: Criteria console</b><span>Read five facts against the five criteria</span></div>
+       <div class="labTile"><span data-ic="layers"></span><b>Lab 3: Best-fit studio</b><span>Choose, design a hybrid, and log it</span></div>
+      </div>
+      <p class="lead" style="font-size:15px;margin-bottom:18px">You get one try at each item. If you miss one, you'll see the answer and why, then move on. Open the <b>Nomli brief</b> any time for the facts.</p>
+      <button class="go" id="start" type="button">Enter Lab 1 <span data-ic="arrow"></span></button>
+     </div>
+     <div class="heroArt" id="heroArt"></div>
+    </div>
+   </div>
+  </section>
+
+  <!-- LAB 1 -->
+  <section class="screen" id="s1">
+   <div class="card">
+    <div class="labHead"><div class="badge" data-ic="scroll"></div>
+     <div><div class="kicker">Lab 1 · Mindset check</div><h2 id="l1title">Which Agile value is the team living?</h2><p class="lead" id="l1lead" style="font-size:15px">Each scene shows a Nomli team at work. Pick the Agile Manifesto value it reflects.</p></div>
+     <div class="count" id="k1"></div></div>
+    <div class="split">
+     <div id="q1"></div>
+     <aside class="side" id="side1"></aside>
+    </div>
+   </div>
+  </section>
+
+  <!-- LAB 2 -->
+  <section class="screen" id="s2">
+   <div class="card">
+    <div class="labHead"><div class="badge" data-ic="gauge"></div>
+     <div><div class="kicker">Lab 2 · Criteria console</div><h2>Which criterion, and which way does it point?</h2><p class="lead" style="font-size:15px">For each fact, name the criterion it's evidence for. Then say which way it points. Watch the needles for Fee Planner and the Bank File move as the evidence adds up.</p></div>
+     <div class="count" id="k2"></div></div>
+    <div class="split">
+     <div id="q2"></div>
+     <aside class="side"><h3><span data-ic="gauge" style="width:24px;height:24px;display:inline-block"></span>Approach meters</h3><div id="gauges"></div></aside>
+    </div>
+   </div>
+  </section>
+
+  <!-- LAB 3 -->
+  <section class="screen" id="s3">
+   <div class="card">
+    <div class="labHead"><div class="badge" data-ic="layers"></div>
+     <div><div class="kicker">Lab 3 · Best-fit studio</div><h2 id="l3title">Choose the best fit for each project</h2><p class="lead" id="l3lead" style="font-size:15px">The best fit is the approach whose strengths match the criteria that matter most for this project, not the best approach in general.</p></div>
+     <div class="count" id="k3"></div></div>
+    <div id="q3"></div>
+   </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="screen" id="s4">
+   <div class="card" id="resCard">
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end">
+     <div><div class="kicker">Results · Your readings</div><h2 class="disp" style="font-size:32px;margin-top:4px">The lab work is done</h2></div>
+     <div style="margin-left:auto;text-align:right"><div class="big" id="total">0</div><div class="kicker" id="totalOf" style="color:var(--muted)"></div></div>
+    </div>
+    <div class="beakers" id="beakers"></div>
+    <div class="kicker" style="margin-top:18px">What you practiced from Module 2</div>
+    <div class="learned">
+     <div><b>Section 2</b>Matching team behavior to the four Agile values, and telling defined work from empirical work with three questions.</div>
+     <div><b>Section 3</b>Linking facts to the five criteria and seeing which way each one points.</div>
+     <div><b>Section 4</b>Choosing the best fit, designing a hybrid with a clear boundary, planning for a risk, and writing a decision log line.</div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:20px"><button class="go soft" id="again" type="button"><span data-ic="redo"></span>Run the lab again</button></div>
+   </div>
+  </section>
+ </main>
+</div>
+
+<div class="veil" id="veil">
+ <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="mHead"><span data-ic="folder" style="width:34px;height:34px;display:inline-block"></span><h2 id="mTitle">Nomli brief <span class="fic">fictional</span></h2><button class="x" id="closeBrief" type="button" aria-label="Close the brief">×</button></div>
+  <div class="tabs" role="tablist" aria-label="Brief sections">
+   <button class="tab" role="tab" aria-selected="true" aria-controls="p0" id="t0" type="button">Nomli</button>
+   <button class="tab" role="tab" aria-selected="false" aria-controls="p1" id="t1" type="button">A. Fee Planner</button>
+   <button class="tab" role="tab" aria-selected="false" aria-controls="p2" id="t2" type="button">B. Bank File</button>
+   <button class="tab" role="tab" aria-selected="false" aria-controls="p3" id="t3" type="button">C. Digital Receipts</button>
+  </div>
+  <div class="pane" role="tabpanel" id="p0" aria-labelledby="t0">
+   <p>Nomli, its people, its partners, and its numbers are fictional and were written for this practice.</p>
+   <ul>
+    <li>About 40 people. Nomli's app lets parents pay school fees by phone.</li>
+    <li>Public releases go out once a month. A test version can reach pilot users within a week.</li>
+    <li>The CTO is starting three projects and asks: "Should we run them all the same way?"</li>
+   </ul>
+  </div>
+  <div class="pane" role="tabpanel" id="p1" aria-labelledby="t1" hidden>
+   <p><b>Goal:</b> let parents split a term's fees into smaller payments.</p>
+   <ul>
+    <li>Nobody knows yet how many payments parents want to split a term into, or which options they'll trust.</li>
+    <li>Fee Planner succeeds only if parents actually set up payment plans and keep them.</li>
+    <li>Bursars at five pilot schools can meet the team every two weeks.</li>
+    <li>There's no external deadline. A test version can reach pilot parents within a week, and changing it costs little.</li>
+   </ul>
+  </div>
+  <div class="pane" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+   <p><b>Goal:</b> send each school's daily fee payments to Nomli's partner bank in the bank's file format.</p>
+   <ul>
+    <li>The bank contract sets out the file in full: 9 fields, their order, and the allowed values. Any change needs written agreement from both sides.</li>
+    <li>The bank contract says the file must be live by the last day of term, and the bank won't accept a partial file.</li>
+    <li>The bank's IT team can join one call a month and one two-week test window.</li>
+    <li>After the test window, any change to the file must be retested by the bank, which takes about six weeks.</li>
+    <li>Parents won't see anything new. Feedback comes from the bank, not from parents.</li>
+   </ul>
+  </div>
+  <div class="pane" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+   <p><b>Goal:</b> send parents a receipt after every payment.</p>
+   <ul>
+    <li>Nomli's contract with schools says receipts must be live in 10 weeks.</li>
+    <li>Five fields are agreed with schools: amount, date, school, student number, and payment reference.</li>
+    <li>Still open: how a receipt should look on a basic phone, and whether parents want it by text message or in the app.</li>
+    <li>Two pilot schools can review drafts every two weeks.</li>
+    <li>Once receipts go live at all schools, any change means retraining every school's bursar.</li>
+   </ul>
+  </div>
+ </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var INK="#221a3d";
+function S(w,inner){return `<svg viewBox="0 0 64 64" aria-hidden="true">${inner}</svg>`;}
+var st=`stroke="${INK}" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"`;
+var IC={
+flask:S(0,`<path d="M24 6h16M27 6v16L12 50a6 6 0 0 0 5 9h30a6 6 0 0 0 5-9L37 22V6" fill="url(#gS)" ${st}/><path d="M17 42h30l5 8a6 6 0 0 1-5 9H17a6 6 0 0 1-5-9z" fill="url(#gV)"/><path d="M27 6v16L12 50a6 6 0 0 0 5 9h30a6 6 0 0 0 5-9L37 22V6" fill="none" ${st}/><circle cx="28" cy="49" r="3" fill="#fff"/><circle cx="38" cy="45" r="2" fill="#fff"/>`),
+scroll:S(0,`<path d="M16 10h32a6 6 0 0 1 6 6v0H22v34a6 6 0 0 1-12 0V44h6" fill="url(#gS)" ${st}/><path d="M22 16v34a6 6 0 0 1-6 6h30a6 6 0 0 0 6-6V16" fill="#fff" ${st}/><path d="M29 26h16M29 34h16M29 42h10" stroke="url(#gV)" stroke-width="4" stroke-linecap="round"/><circle cx="47" cy="44" r="6" fill="url(#gO)" ${st}/>`),
+gauge:S(0,`<path d="M8 42a24 24 0 0 1 48 0" fill="none" stroke="url(#gB)" stroke-width="9" stroke-linecap="round"/><path d="M8 42a24 24 0 0 1 48 0" fill="none" ${st}/><path d="M32 42 L44 24" stroke="#ff5c8a" stroke-width="4" stroke-linecap="round"/><circle cx="32" cy="42" r="5" fill="#fff" ${st}/><rect x="14" y="50" width="36" height="8" rx="4" fill="url(#gV)" ${st}/>`),
+layers:S(0,`<path d="M32 8 58 21 32 34 6 21z" fill="url(#gB)" ${st}/><path d="M10 31 6 33l26 13 26-13-4-2" fill="none" ${st}/><path d="M10 43 6 45l26 13 26-13-4-2" fill="none" stroke="#ff5c8a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 4"/>`),
+folder:S(0,`<path d="M6 16a4 4 0 0 1 4-4h14l5 6h25a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="url(#gO)" ${st}/><rect x="14" y="24" width="36" height="22" rx="3" fill="#fff" ${st}/><path d="M20 31h20M20 38h14" stroke="#582fc1" stroke-width="3" stroke-linecap="round"/>`),
+arrow:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+redo:`<svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px"><path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ok:S(0,`<circle cx="32" cy="32" r="26" fill="url(#gA)"/><path d="M20 33l8 8 16-17" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`),
+no:S(0,`<circle cx="32" cy="32" r="26" fill="url(#gO)"/><path d="M23 23l18 18M41 23L23 41" stroke="#fff" stroke-width="5" stroke-linecap="round"/>`),
+/* values */
+people:S(0,`<circle cx="22" cy="22" r="9" fill="url(#gO)" ${st}/><circle cx="44" cy="24" r="8" fill="url(#gB)" ${st}/><path d="M6 54c1-11 8-16 16-16s15 5 16 16z" fill="#fff" ${st}/><path d="M37 41c2-2 4-3 7-3 7 0 13 5 14 16H40" fill="#e9e1ff" ${st}/><path d="M28 12c4-4 10-4 14 0" fill="none" stroke="#ff5c8a" stroke-width="3" stroke-linecap="round"/>`),
+screen:S(0,`<rect x="6" y="10" width="52" height="36" rx="6" fill="#fff" ${st}/><rect x="12" y="16" width="40" height="24" rx="3" fill="url(#gB)"/><path d="M20 28l6 6 12-12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 56h16M32 46v10" ${st}/>`),
+hands:S(0,`<path d="M4 30l12-12 10 4 8-4 8 4 8-4 10 12-10 14-6-4" fill="url(#gS)" ${st}/><path d="M22 38l8 8 4-2 4 4 4-2-12-14-8 4z" fill="url(#gO)" ${st}/><path d="M16 18l8 20" fill="none" ${st}/>`),
+turn:S(0,`<path d="M14 54V34a12 12 0 0 1 12-12h24" fill="none" stroke="url(#gV)" stroke-width="7" stroke-linecap="round"/><path d="M14 54V34a12 12 0 0 1 12-12h24" fill="none" ${st}/><path d="M42 12l10 10-10 10" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="54" r="4" fill="#ff5c8a" ${st}/>`),
+/* defined / empirical */
+blueprint:S(0,`<rect x="8" y="8" width="48" height="48" rx="6" fill="url(#gB)" ${st}/><path d="M8 20h48M20 8v48M30 30h18v16H30z" stroke="#fff" stroke-width="2.5" fill="none" stroke-dasharray="4 3"/><path d="M14 50l8-8" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`),
+loop:S(0,`<path d="M50 24A20 20 0 0 0 14 22" fill="none" stroke="url(#gA)" stroke-width="7" stroke-linecap="round"/><path d="M14 40a20 20 0 0 0 36 2" fill="none" stroke="url(#gV)" stroke-width="7" stroke-linecap="round"/><path d="M8 16v10h10M56 48V38H46" fill="none" stroke="${INK}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="32" r="5" fill="#fff" ${st}/>`),
+/* approaches */
+stairs:S(0,`<path d="M6 14h14v12h14v12h14v12h10" fill="none" stroke="url(#gB)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 14h14v12h14v12h14v12h10" fill="none" ${st}/><path d="M24 12c2 3 2 6 0 9M38 24c2 3 2 6 0 9" fill="none" stroke="#12b5a3" stroke-width="3" stroke-linecap="round"/>`),
+/* criteria */
+fog:S(0,`<path d="M16 44a10 10 0 0 1 2-20 14 14 0 0 1 27-2 11 11 0 0 1 3 22z" fill="url(#gS)" ${st}/><path d="M28 28a5 5 0 1 1 6 5c-2 1-2 2-2 4" fill="none" stroke="#582fc1" stroke-width="3.5" stroke-linecap="round"/><circle cx="32" cy="41" r="2" fill="#582fc1"/><path d="M12 52h20M38 52h14" stroke="#12b5a3" stroke-width="3" stroke-linecap="round"/>`),
+lock:S(0,`<rect x="8" y="12" width="40" height="40" rx="6" fill="#fff" ${st}/><path d="M8 22h40" ${st}/><path d="M18 8v8M38 8v8" ${st}/><rect x="34" y="34" width="24" height="20" rx="4" fill="url(#gO)" ${st}/><path d="M39 34v-4a7 7 0 0 1 14 0v4" fill="none" ${st}/><circle cx="46" cy="44" r="2.5" fill="${INK}"/><path d="M15 30h6M15 38h6M25 30h6" stroke="#582fc1" stroke-width="3" stroke-linecap="round"/>`),
+chat:S(0,`<path d="M6 12h32a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H20l-8 7v-7H6z" fill="url(#gV)" ${st}/><path d="M28 36h18l8 7v-7h4V22a4 4 0 0 0-4-4h-8" fill="#fff" ${st}/><path d="M14 22h16M14 28h10" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`),
+clockp:S(0,`<circle cx="22" cy="20" r="9" fill="url(#gB)" ${st}/><path d="M6 54c1-11 8-17 16-17 4 0 7 1 10 4" fill="#fff" ${st}/><circle cx="44" cy="42" r="15" fill="#fff" ${st}/><path d="M44 34v8l6 4" fill="none" stroke="#ff5c8a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`),
+coins:S(0,`<ellipse cx="24" cy="46" rx="16" ry="6" fill="url(#gO)" ${st}/><path d="M8 38v8M40 38v8" ${st}/><ellipse cx="24" cy="38" rx="16" ry="6" fill="url(#gO)" ${st}/><path d="M38 24l8-12 8 12" fill="none" stroke="#e8436f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 12v26" stroke="#e8436f" stroke-width="4" stroke-linecap="round"/>`),
+/* misc */
+diamond:S(0,`<path d="M14 58V6" ${st}/><path d="M14 8h34l-6 9 6 9H14z" fill="url(#gV)" ${st}/><path d="M40 40l8-8 8 8-8 8z" fill="url(#gO)" ${st}/>`),
+shield:S(0,`<path d="M32 6l22 8v14c0 15-10 25-22 30C20 53 10 43 10 28V14z" fill="url(#gB)" ${st}/><path d="M22 32l7 7 13-14" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`),
+book:S(0,`<rect x="10" y="6" width="40" height="52" rx="5" fill="url(#gV)" ${st}/><rect x="16" y="6" width="34" height="52" rx="4" fill="#fff" ${st}/><path d="M23 18h20M23 26h20M23 34h12" stroke="#582fc1" stroke-width="3" stroke-linecap="round"/><path d="M38 44l4 4 8-9" fill="none" stroke="#12b5a3" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>`)
+};
+function ic(n){return IC[n]||"";}
+function paintIcons(root){(root||document).querySelectorAll("[data-ic]").forEach(function(el){el.innerHTML=ic(el.getAttribute("data-ic"));});}
+paintIcons();
+
+/* hero art */
+document.getElementById("heroArt").innerHTML=`<svg viewBox="0 0 320 320" role="img" aria-label="A lab flask over three project cards">
+ <circle cx="160" cy="160" r="140" fill="url(#gS)"/>
+ <g class="float"><rect x="30" y="196" width="120" height="70" rx="18" fill="#fff" stroke="${INK}" stroke-width="3"/><rect x="42" y="208" width="40" height="10" rx="5" fill="#12b5a3"/><rect x="42" y="226" width="90" height="8" rx="4" fill="#e9e1ff"/><rect x="42" y="242" width="70" height="8" rx="4" fill="#e9e1ff"/></g>
+ <g class="float2"><rect x="172" y="206" width="120" height="70" rx="18" fill="#fff" stroke="${INK}" stroke-width="3"/><rect x="184" y="218" width="40" height="10" rx="5" fill="#0b5394"/><rect x="184" y="236" width="90" height="8" rx="4" fill="#dceafa"/><rect x="184" y="252" width="60" height="8" rx="4" fill="#dceafa"/></g>
+ <path d="M138 40h44M144 40v52l-46 82a14 14 0 0 0 12 21h100a14 14 0 0 0 12-21l-46-82V40" fill="#fff" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+ <path d="M112 150h96l14 25a14 14 0 0 1-12 20H110a14 14 0 0 1-12-20z" fill="url(#gV)"/>
+ <path d="M144 40v52l-46 82a14 14 0 0 0 12 21h100a14 14 0 0 0 12-21l-46-82V40" fill="none" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+ <circle class="bub" cx="150" cy="172" r="6" fill="#fff"/><circle class="bub" style="animation-delay:-1.1s" cx="172" cy="178" r="4" fill="#fff"/><circle class="bub" style="animation-delay:-2s" cx="186" cy="168" r="5" fill="#fff"/>
+ <g class="float2"><rect x="214" y="48" width="84" height="40" rx="20" fill="#ff9f2e" stroke="${INK}" stroke-width="3"/><text x="256" y="74" text-anchor="middle" font-family="Syne, sans-serif" font-weight="800" font-size="17" fill="${INK}">FIT?</text></g>
+</svg>`;
+
+/* ---------------- data (Module 2 content only) ---------------- */
+var VALUES=[
+ {k:"ind",i:"people",l:"Individuals and interactions",r:"over processes and tools"},
+ {k:"work",i:"screen",l:"Working software",r:"over comprehensive documentation"},
+ {k:"cust",i:"hands",l:"Customer collaboration",r:"over contract negotiation"},
+ {k:"chg",i:"turn",l:"Responding to change",r:"over following a plan"}
+];
+var L1A=[
+ {t:"Instead of sending schools a 40-page specification, the team shows two bursars a working payment screen.",a:"work",why:"Showing something that works gets faster, clearer feedback than a long document. The Manifesto still sees value in documents; it values working software more."},
+ {t:"Pilot parents ask to pay weekly, so the team changes the plan for the next cycle.",a:"chg",why:"The team changes its plan when it learns something new, instead of sticking to the original plan."},
+ {t:"A developer and the Support Lead sit down together to solve a problem, instead of passing tickets back and forth.",a:"ind",why:"People working a problem out together comes before routing it through a tool or a process."},
+ {t:"Rather than arguing over what the contract allows, the team invites a partner school to review each draft.",a:"cust",why:"Working with the customer on each draft comes before negotiating over the contract's terms."}
+];
+var L1B=[
+ {t:"Producing the monthly payments summary for Nomli's board. Same inputs and same format every month.",a:"def",why:"The steps are known, a good result is known, and a plan made today will hold. Mainly defined."},
+ {t:"Finding out why many parents stop after their first fee payment, by trying new screens and watching what parents do.",a:"emp",why:"Nobody knows the cause yet, so the team learns by trying designs and checking the results. Mainly empirical."},
+ {t:"Renewing the app's security certificate by following the provider's published steps.",a:"def",why:"The provider lists the steps and the result is clear, so the plan should hold. Mainly defined. Defined doesn't mean easy."},
+ {t:"Designing how parents choose a payment plan, when nobody knows which options parents will trust.",a:"emp",why:"What parents need is unknown at the start, so the team has to test versions with parents and adjust. Mainly empirical."}
+];
+var CRIT=[
+ {k:"unc",i:"fog",l:"Requirement uncertainty",s:"How much is known before work starts?"},
+ {k:"fix",i:"lock",l:"Fixed deadline or rule",s:"Is there a date or rule to meet?"},
+ {k:"fb",i:"chat",l:"Need for user feedback",s:"Does success depend on users' reactions?"},
+ {k:"av",i:"clockp",l:"Stakeholder availability",s:"How often can key people take part?"},
+ {k:"cost",i:"coins",l:"Cost of change",s:"What does a late change cost?"}
+];
+var DIRS=[
+ {k:"up",i:"stairs",l:"Settle more up front",s:"Plan-driven"},
+ {k:"cy",i:"loop",l:"Short cycles with feedback",s:"Agile"}
+];
+var L2=[
+ {p:"A",t:"Nobody knows yet how many payments parents want to split a term into, or which options they'll trust.",c:"unc",d:"cy",wc:"It's about how much of what's needed is known before work starts.",wd:"High uncertainty points toward Agile: short cycles let the team learn what parents need."},
+ {p:"A",t:"Fee Planner succeeds only if parents actually set up payment plans and keep them.",c:"fb",d:"cy",wc:"Success depends on users' reactions, so this fact speaks to the need for user feedback.",wd:"A high need for user feedback points toward Agile."},
+ {p:"B",t:"The bank contract says the file must be live by the last day of term, and the bank won't accept a partial file.",c:"fix",d:"up",wc:"It's a date the work must meet, set in a contract.",wd:"A fixed date with fixed scope points toward a plan-driven approach. There's no smaller version to release first."},
+ {p:"B",t:"The bank's IT team can join one call a month and one two-week test window.",c:"av",d:"up",wc:"It's about how often the people who must approve the work can take part.",wd:"When key people are rarely available, more has to be settled up front."},
+ {p:"B",t:"After the test window, any change to the file must be retested by the bank, which takes about six weeks.",c:"cost",d:"up",wc:"It's about what a late change costs in time.",wd:"A high cost of change means settling more early."}
+];
+var PROJ={A:{n:"Fee Planner",c:"pA"},B:{n:"Bank File",c:"pB"},C:{n:"Digital Receipts",c:"pC"}};
+var APPR=[
+ {k:"wf",i:"stairs",l:"Waterfall",s:"Plan it all, then build"},
+ {k:"ag",i:"loop",l:"Agile",s:"Short cycles with feedback"},
+ {k:"hy",i:"layers",l:"Hybrid",s:"Fixed part planned, open part in cycles"}
+];
+var L3A=[
+ {p:"A",t:"Fee Planner: which approach fits best?",a:"ag",why:"Requirements are uncertain, success depends on parents' reactions, bursars meet every two weeks, and a test version reaches parents within a week at little cost. The criteria point to short cycles."},
+ {p:"B",t:"Bank File: which approach fits best?",a:"wf",why:"The format is fully set out, the date and scope are fixed, the bank is rarely available, and a late change costs about six weeks. A plan made now should hold."},
+ {p:"C",t:"Digital Receipts: which approach fits best? Check the brief.",a:"hy",why:"It has a fixed part (a 10-week contract date and five agreed fields) and an open part (the layout and how receipts are sent). A hybrid plans the first and runs the second in short cycles."}
+];
+var PARTS=[
+ {k:"plan",l:"Plan up front",i:"stairs"},
+ {k:"cyc",l:"Short cycles",i:"loop"}
+];
+var L3B=[
+ {t:"The five agreed fields on every receipt",a:"plan",why:"They're agreed with schools already, so they can be planned up front."},
+ {t:"The 10-week go-live date",a:"plan",why:"A contract date is a milestone the plan must meet."},
+ {t:"How a receipt looks on a basic phone",a:"cyc",why:"It's still open, and two pilot schools can review drafts every two weeks. That suits short cycles."},
+ {t:"Whether parents get receipts by text message or in the app",a:"cyc",why:"Nobody knows yet what parents prefer, so the team learns it in short cycles."}
+];
+var L3C=[
+ {tag:"Hybrid design",t:"Which statement describes a real hybrid design for Digital Receipts?",o:[
+   {t:"Plan the five fields and the go-live date up front. Build the layout and the way receipts are sent in two-week cycles with the pilot schools. Fix both at a week 6 milestone, before launch.",ok:true},
+   {t:"We'll stay flexible and plan things when we need to.",why:"That's a missing plan, not a hybrid. A hybrid says which part is fixed, which part runs in cycles, and how they meet."},
+   {t:"Start with Waterfall, then switch to Agile if things go wrong.",why:"It doesn't say which part is fixed and which part is iterated, so the boundary is blurred."}],okWhy:"It says which part is planned, which part runs in cycles, and how the two meet at a milestone. The milestone comes before launch because changes after launch mean retraining every bursar."},
+ {tag:"Risk and mitigation",t:"Risk: the two pilot schools may not agree on a layout by the week 6 milestone. Which mitigation is the most specific?",o:[
+   {t:"Prepare a default layout by week 4. If the schools haven't agreed by week 6, launch with the default and treat later changes as improvements after launch.",ok:true},
+   {t:"Hope the pilot schools agree in time.",why:"Hope isn't a mitigation. A mitigation is a specific step that makes the risk less likely or less harmful."},
+   {t:"Move the go-live date if the schools don't agree.",why:"The 10-week date is fixed in the schools' contract, so it can't be the plan for this risk."}],okWhy:"It's a specific step with a date, and it protects the fixed launch date."},
+ {tag:"Decision log line",t:"Which decision log line is complete?",o:[
+   {t:"Digital Receipts: hybrid.",why:"It records the decision only. There's no main reason or evidence, so nobody can check it later."},
+   {t:"Digital Receipts: hybrid. Main reason: a fixed contract date with one open part. Evidence: five fields agreed; layout and channel open; pilot reviews every two weeks. Layout fixed at week 6.",ok:true},
+   {t:"Digital Receipts: hybrid, because hybrids are the safest choice.",why:"The reason is a general claim, not evidence from the brief. A hybrid is the best fit here because of the facts, not in general."}],okWhy:"It gives the decision, the main reason, and the evidence, and it names the milestone."}
+];
+var LOGTEXT="Digital Receipts: hybrid.\nMain reason: a fixed contract date with one open part.\nEvidence: five fields agreed; layout and channel open; pilot reviews every two weeks.\nMilestone: layout fixed at week 6.";
+
+/* ---------------- helpers ---------------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function fb(ok,why,label){return `<div class="fb ${ok?"ok":"no"}">${ic(ok?"ok":"no")}<div><b>${ok?"Correct.":"Not quite."}</b> ${(!ok&&label)?`The answer is <b>${esc(label)}</b>. `:""}${esc(why)}</div></div>`;}
+var R;
+function reset(){R={s:{1:[],2:[],3:[]},v:{A:0,B:0}};}
+reset();
+var MAX={1:L1A.length+L1B.length,2:L2.length*2,3:L3A.length+L3B.length+L3C.length};
+
+function show(n){
+  document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("show");});
+  $("s"+n).classList.add("show");
+  document.querySelectorAll(".node").forEach(function(d){var k=+d.getAttribute("data-n");d.classList.toggle("on",k===n);d.classList.toggle("done",k<n);});
+  $("track").style.width=(n<=1?0:Math.min(n-1,3)/3*100)+"%";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+/* generic question: opts = [{k,l,s,i}] ; answer key ; layout class ; done(ok) */
+function ask(box,cfg){
+  var h=`<div class="q">${cfg.from?`<span class="from ${PROJ[cfg.from].c}">${cfg.from}. ${PROJ[cfg.from].n}</span><br>`:""}<small>${esc(cfg.tag)}</small>${esc(cfg.t)}</div><div class="opts ${cfg.grid}" role="group" aria-label="${esc(cfg.tag)}">`;
+  cfg.opts.forEach(function(o){
+    if(o.i) h+=`<button class="opt ${cfg.tall?"tall":""}" type="button" data-k="${o.k}"><span class="ib">${ic(o.i)}</span><span class="tx">${esc(o.l)}${o.s?`<small>${esc(o.s)}</small>`:""}</span></button>`;
+    else h+=`<button class="opt long" type="button" data-k="${o.k}">${esc(o.l)}</button>`;
+  });
+  h+=`</div><div class="fbx"></div>`;
+  var wrap=document.createElement("div");wrap.innerHTML=h;box.appendChild(wrap);
+  wrap.querySelectorAll(".opt").forEach(function(b){b.addEventListener("click",function(){
+    var k=b.getAttribute("data-k"),ok=k===cfg.a;
+    wrap.querySelectorAll(".opt").forEach(function(x){var xk=x.getAttribute("data-k");x.disabled=true;if(xk===cfg.a)x.classList.add("right");else if(xk===k)x.classList.add("wrong");else x.classList.add("dim");});
+    var label=null;cfg.opts.forEach(function(o){if(o.k===cfg.a)label=o.l;});
+    var why=typeof cfg.why==="function"?cfg.why(k,ok):cfg.why;
+    wrap.querySelector(".fbx").innerHTML=fb(ok,why,cfg.showLabel===false?null:label);
+    cfg.done(ok,k);
+  });});
+  return wrap;
+}
+function nextBtn(box,label,fn){
+  var d=document.createElement("div");d.className="nav";d.innerHTML=`<button class="go" type="button">${esc(label)} ${ic("arrow")}</button>`;box.appendChild(d);
+  var b=d.querySelector("button");b.focus({preventScroll:true});b.addEventListener("click",fn);
+}
+function counter(el,i,n){$(el).textContent="Item "+(i+1)+" of "+n;}
+
+/* ---------------- LAB 1 ---------------- */
+var i1;
+function manifesto(){
+  var h=`<h3><span data-ic="scroll" style="width:24px;height:24px;display:inline-block"></span>Agile Manifesto (2001)</h3>`;
+  VALUES.forEach(function(v){h+=`<div class="val" id="val-${v.k}">${ic(v.i)}<p><b>${v.l}</b> <span>${v.r}</span></p></div>`;});
+  h+=`<p style="font-size:12.5px;color:var(--muted);margin-top:6px">The items on the right still have value. The Manifesto values the items on the left more.</p>`;
+  $("side1").innerHTML=h;paintIcons($("side1"));
+}
+function lanes(){
+  $("side1").innerHTML=`<h3><span data-ic="flask" style="width:24px;height:24px;display:inline-block"></span>Sorting bench</h3>
+  <div class="chips" style="margin:0 0 10px"><span>Do we know the steps?</span><span>Do we know what a good result looks like?</span><span>Can a plan made today hold to the end?</span></div>
+  <div class="lanes"><div class="lane def" id="lane-def"><h4>${ic("blueprint")}Defined</h4></div><div class="lane emp" id="lane-emp"><h4>${ic("loop")}Empirical</h4></div></div>`;
+  paintIcons($("side1"));
+}
+function start1(){shuffle(L1A);shuffle(L1B);show(1);i1=0;manifesto();$("l1title").textContent="Which Agile value is the team living?";$("l1lead").textContent="Each scene shows a Nomli team at work. Pick the Agile Manifesto value it reflects.";step1();}
+function step1(){
+  var n=L1A.length+L1B.length;counter("k1",i1,n);
+  var box=$("q1");box.innerHTML="";
+  if(i1<L1A.length){
+    var q=L1A[i1];
+    ask(box,{tag:"Scene "+(i1+1),t:q.t,grid:"g1",opts:VALUES.map(function(v){return {k:v.k,i:v.i,l:v.l,s:v.r};}),a:q.a,why:q.why,done:function(ok){
+      R.s[1].push(ok);var el=$("val-"+q.a);el.classList.add("lit");if(!ok)el.classList.add("miss");
+      nextBtn(box,i1===L1A.length-1?"Switch to the sorting bench":"Next scene",function(){i1++;if(i1===L1A.length){lanes();$("l1title").textContent="Defined or empirical?";$("l1lead").textContent="Ask the three questions from Section 2. Is each piece of Nomli work mainly defined or mainly empirical?";}step1();});
+    }});
+  } else {
+    var j=i1-L1A.length,w=L1B[j];
+    ask(box,{tag:"Work item "+(j+1),t:w.t,grid:"g2",tall:true,opts:[{k:"def",i:"blueprint",l:"Mainly defined",s:"The plan will hold"},{k:"emp",i:"loop",l:"Mainly empirical",s:"Learn by doing and checking"}],a:w.a,why:w.why,done:function(ok){
+      R.s[1].push(ok);var c=document.createElement("div");c.className="chipCard"+(ok?"":" miss");c.textContent=w.t.split(".")[0]+".";$("lane-"+w.a).appendChild(c);
+      nextBtn(box,i1===n-1?"Enter Lab 2":"Next work item",function(){i1++;if(i1===n)start2();else step1();});
+    }});
+  }
+}
+
+/* ---------------- LAB 2 ---------------- */
+var i2;
+function arc(a1,a2){var r=78,cx=100,cy=100;function p(a){var t=a*Math.PI/180;return (cx+r*Math.cos(t)).toFixed(1)+" "+(cy-r*Math.sin(t)).toFixed(1);}return `M${p(a1)} A${r} ${r} 0 0 1 ${p(a2)}`;}
+function gaugeSVG(id){
+  return `<svg viewBox="0 -16 200 144" role="img" aria-label="Approach meter from Waterfall to Agile">
+   <path d="${arc(180,122)}" fill="none" stroke="#0b5394" stroke-width="18"/>
+   <path d="${arc(118,62)}" fill="none" stroke="#582fc1" stroke-width="18"/>
+   <path d="${arc(58,0)}" fill="none" stroke="#12b5a3" stroke-width="18"/>
+   <text x="14" y="122" font-family="Manrope, sans-serif" font-weight="800" font-size="11" fill="#0b5394">WATERFALL</text>
+   <text x="100" y="-4" text-anchor="middle" font-family="Manrope, sans-serif" font-weight="800" font-size="11" fill="#582fc1">HYBRID</text>
+   <text x="186" y="122" text-anchor="end" font-family="Manrope, sans-serif" font-weight="800" font-size="11" fill="#0e9e8c">AGILE</text>
+   <g class="needle" id="ndl-${id}"><path d="M100 100 L96 98 L100 34 L104 98 Z" fill="${INK}"/><circle cx="100" cy="34" r="4" fill="#ff5c8a"/></g>
+   <circle cx="100" cy="100" r="9" fill="#fff" stroke="${INK}" stroke-width="3"/></svg>`;
+}
+function gauges(){
+  $("gauges").innerHTML=["A","B"].map(function(p){return `<div class="gauge"><div class="gt"><i class="${PROJ[p].c}">${p}</i>${PROJ[p].n}</div>${gaugeSVG(p)}<div class="ev" id="ev-${p}">No evidence read yet</div></div>`;}).join("")+
+  `<p style="font-size:12.5px;color:var(--muted)">No single criterion decides the approach. The needle moves as the facts add up.</p>`;
+  setNeedles();
+}
+function setNeedles(){["A","B"].forEach(function(p){var n=$("ndl-"+p);if(n)n.style.transform="rotate("+(R.v[p]*80)+"deg)";});}
+function start2(){shuffle(L2);show(2);i2=0;R.v={A:0,B:0};gauges();step2();}
+function step2(){
+  var f=L2[i2];$("k2").textContent="Fact "+(i2+1)+" of "+L2.length;
+  var box=$("q2");box.innerHTML="";
+  ask(box,{from:f.p,tag:"Step 1 · Which criterion is this evidence for?",t:f.t,grid:"g1",opts:CRIT.map(function(c){return {k:c.k,i:c.i,l:c.l,s:c.s};}),a:f.c,why:f.wc,done:function(ok){
+    R.s[2].push(ok);
+    var sub=document.createElement("div");sub.className="sub2";box.appendChild(sub);
+    ask(sub,{tag:"Step 2 · Which way does this fact point?",t:"For "+PROJ[f.p].n+", this fact points toward:",grid:"g2",tall:true,opts:DIRS,a:f.d,why:f.wd,done:function(ok2){
+      R.s[2].push(ok2);
+      var nP=L2.filter(function(x){return x.p===f.p;}).length;R.v[f.p]+=(f.d==="cy"?1:-1)*1/nP;setNeedles();
+      var seen=L2.slice(0,i2+1).filter(function(x){return x.p===f.p;}).length;$("ev-"+f.p).textContent=seen+" of "+nP+" facts read";
+      sub.querySelector(".q").scrollIntoView({behavior:"smooth",block:"nearest"});
+      nextBtn(sub,i2===L2.length-1?"Enter Lab 3":"Next fact",function(){i2++;if(i2===L2.length)start3();else step2();});
+    }});
+    sub.scrollIntoView({behavior:"smooth",block:"nearest"});
+  }});
+}
+
+/* ---------------- LAB 3 ---------------- */
+var i3;
+function start3(){shuffle(L3B);BOARD={plan:[],cyc:[]};show(3);i3=0;$("l3title").textContent="Choose the best fit for each project";$("l3lead").textContent="The best fit is the approach whose strengths match the criteria that matter most for this project, not the best approach in general.";step3();}
+function step3(){
+  var n=L3A.length+L3B.length+L3C.length;$("k3").textContent="Item "+(i3+1)+" of "+n;
+  var box=$("q3");box.innerHTML="";
+  if(i3<L3A.length){
+    var q=L3A[i3];
+    ask(box,{from:q.p,tag:"Best fit",t:q.t,grid:"g3",tall:true,opts:APPR,a:q.a,why:q.why,done:function(ok){
+      R.s[3].push(ok);
+      nextBtn(box,i3===L3A.length-1?"Design the Digital Receipts hybrid":"Next project",function(){i3++;if(i3===L3A.length){$("l3title").textContent="Draw the line in the hybrid";$("l3lead").textContent="A hybrid is a design, not a bit of both. Decide which parts of Digital Receipts are planned up front and which run in short cycles.";}step3();});
+    }});
+  } else if(i3<L3A.length+L3B.length){
+    var j=i3-L3A.length,w=L3B[j];
+    var holder=document.createElement("div");box.appendChild(holder);
+    ask(holder,{from:"C",tag:"Part "+(j+1)+" of 4",t:w.t,grid:"g2",tall:true,opts:PARTS,a:w.a,why:w.why,done:function(ok){
+      R.s[3].push(ok);
+      var c=document.createElement("div");c.className="chipCard"+(ok?"":" miss");c.textContent=w.t;BOARD[w.a].push(c.outerHTML);renderBoard();
+      if(j===L3B.length-1)$("mile").classList.add("on");
+      nextBtn(holder,j===L3B.length-1?"Check the design":"Next part",function(){i3++;if(i3===L3A.length+L3B.length){$("l3title").textContent="Plan for risk and record it";$("l3lead").textContent="Name how the parts meet, plan for one realistic risk, and write a decision log line.";}step3();});
+    }});
+    var bd=document.createElement("div");bd.id="boardWrap";box.appendChild(bd);renderBoard();
+  } else {
+    var k=i3-L3A.length-L3B.length,c3=L3C[k];
+    var opts=shuffle(c3.o.map(function(o,ix){return {k:"o"+ix,l:o.t,ok:o.ok,why:o.why};}));
+    var ans=opts.filter(function(o){return o.ok;})[0].k;
+    ask(box,{from:"C",tag:c3.tag,t:c3.t,grid:"g1",opts:opts,a:ans,showLabel:false,why:function(kk,ok){if(ok)return c3.okWhy;var o=opts.filter(function(x){return x.k===kk;})[0];return o.why+" The highlighted option is the stronger one.";},done:function(ok){
+      R.s[3].push(ok);
+      var last=k===L3C.length-1;
+      if(last){var lg=document.createElement("div");lg.className="log show";lg.innerHTML=`<div class="lbl">Decision log · Nomli</div><span id="typed" style="white-space:pre-wrap"></span><span class="caret"></span>`;box.appendChild(lg);type(LOGTEXT,$("typed"));}
+      nextBtn(box,last?"See your readings":"Next",function(){i3++;if(last)results();else step3();});
+    }});
+  }
+}
+var BOARD={plan:[],cyc:[]};
+function renderBoard(){
+  var w=$("boardWrap");if(!w)return;
+  w.innerHTML=`<div class="board"><div class="col plan"><h4>${ic("stairs")}Planned up front</h4>${BOARD.plan.join("")}</div><div class="col cyc"><h4>${ic("loop")}Short cycles</h4>${BOARD.cyc.join("")}</div></div><div class="mile ${BOARD.plan.length+BOARD.cyc.length===L3B.length?"on":""}" id="mile">${ic("diamond")}They meet at a milestone before launch</div>`;
+}
+function type(text,el){
+  var reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(reduce){el.textContent=text;return;}
+  var i=0,iv=setInterval(function(){i+=2;el.textContent=text.slice(0,i);if(i>=text.length)clearInterval(iv);},18);
+}
+
+/* ---------------- RESULTS ---------------- */
+function results(){
+  show(4);
+  var cols={1:"linear-gradient(180deg,#a98bff,#582fc1)",2:"linear-gradient(180deg,#5fe6d6,#0b5394)",3:"linear-gradient(180deg,#ffc061,#ff5c8a)"};
+  var names={1:["Lab 1","Mindset check"],2:["Lab 2","Criteria console"],3:["Lab 3","Best-fit studio"]};
+  var tot=0,max=0,h="";
+  [1,2,3].forEach(function(l){var g=R.s[l].filter(Boolean).length,m=MAX[l];tot+=g;max+=m;
+    h+=`<div class="bk"><div class="glass"><div class="liquid" data-h="${Math.round(g/m*100)}" style="background:${cols[l]}"></div><div class="ticks"></div></div><b>${g}/${m}</b><span>${names[l][0]} · ${names[l][1]}</span></div>`;});
+  $("beakers").innerHTML=h;
+  setTimeout(function(){document.querySelectorAll(".liquid").forEach(function(x){x.style.height=Math.max(4,+x.getAttribute("data-h"))+"%";});},120);
+  $("totalOf").textContent="of "+max+" items correct";
+  var t=$("total"),k=0;t.textContent="0";if(tot>0){var iv=setInterval(function(){k++;t.textContent=k;if(k>=tot)clearInterval(iv);},45);}
+  bubbles();
+}
+function bubbles(){
+  var c=$("resCard"),cols=["#582fc1","#12b5a3","#ff5c8a","#ff9f2e","#0b5394"];
+  for(var i=0;i<26;i++){var b=document.createElement("span");b.className="rise";b.style.left=(10+Math.random()*80)+"%";b.style.background=cols[i%5];b.style.animationDelay=(Math.random()*.8)+"s";b.style.setProperty("--dx",(Math.random()*120-60)+"px");var s=6+Math.random()*12;b.style.width=b.style.height=s+"px";c.appendChild(b);(function(el){setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},3400);})(b);}
+}
+
+/* ---------------- brief modal ---------------- */
+var lastF=null;
+function openB(){lastF=document.activeElement;$("veil").classList.add("show");$("closeBrief").focus();}
+function closeB(){$("veil").classList.remove("show");if(lastF)lastF.focus();}
+$("openBrief").addEventListener("click",openB);$("closeBrief").addEventListener("click",closeB);
+$("veil").addEventListener("click",function(e){if(e.target===$("veil"))closeB();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("veil").classList.contains("show"))closeB();});
+var tabs=[0,1,2,3];
+tabs.forEach(function(i){$("t"+i).addEventListener("click",function(){selTab(i);});});
+function selTab(i){tabs.forEach(function(j){$("t"+j).setAttribute("aria-selected",j===i?"true":"false");$("p"+j).hidden=j!==i;});}
+document.querySelector(".tabs").addEventListener("keydown",function(e){var cur=tabs.filter(function(j){return $("t"+j).getAttribute("aria-selected")==="true";})[0];if(e.key==="ArrowRight"){selTab((cur+1)%4);$("t"+((cur+1)%4)).focus();}if(e.key==="ArrowLeft"){selTab((cur+3)%4);$("t"+((cur+3)%4)).focus();}});
+
+$("start").addEventListener("click",start1);
+$("again").addEventListener("click",function(){reset();BOARD={plan:[],cyc:[]};show(0);});
+show(0);
+})();
+</script>
+</body>
+</html>
